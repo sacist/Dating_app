@@ -1,5 +1,14 @@
 import styled from "styled-components";
 
+export const Background=styled.div`
+    background: linear-gradient(to right, #82b3e4, #4ca1af);
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+`
+
 
 export const MainHeader=styled.header`
     display:flex;
