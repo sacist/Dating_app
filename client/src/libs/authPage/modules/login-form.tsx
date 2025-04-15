@@ -30,7 +30,7 @@ export const LoginForm=React.memo(() => {
     return(
         <FormWrapper onSubmit={onSubmitHandler}>
             <LoginDataInput/>
-            <LoginPasswordInput/>
+            <LoginPasswordInput />
             <SubmitButton $disabled={typeof (loginDataError||passwordError)==='string'}>Войти</SubmitButton>
         </FormWrapper>
     )

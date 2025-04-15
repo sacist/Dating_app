@@ -12,7 +12,7 @@ export const changeProfileDataFx = createEffect(async ({ nickname, dob, status, 
         const req = await updateProfile(nickname, dob, status, description);
         return req.data;
     } catch (e) {
-        if (e instanceof AxiosError) {
+        if (e as AxiosError) {
             throw e;
         }
         throw new Error("Неизвестная ошибка");
