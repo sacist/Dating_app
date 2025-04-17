@@ -10,7 +10,7 @@ export interface FindByNicknameResponse{
     error:string
 }
 
-export const findByNickname=async(nickname:string):Promise<FindByNicknameResponse> => {
-    const res=await axiosInstance.get(`/profile/find/${nickname}`)
+export const findByNickname=async(nickname:string,signal:AbortSignal):Promise<FindByNicknameResponse> => {
+    const res=await axiosInstance.get(`/profile/find/${nickname}`,{signal})
     return res.data
 }

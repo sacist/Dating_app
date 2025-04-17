@@ -1,23 +1,39 @@
 import { Input, SearchWrapper,SearchIcon,FoundUsersWrapper,FoundUser } from "../../UI/profile/search-bar";
-import { useState,useEffect } from "react";
+import { useState,useEffect,useRef,useMemo } from "react";
 import { findByNickname,FindByNicknameResponse } from "./api/find-by-nickname";
 import debounce from "../../app-wide/debounce-function";
 import { MainText } from "../../UI/main-text";
 import { useNavigate } from "react-router-dom";
 
-
 export const SearchBar = () => {
     const [searchBarVal, setSearchBarVal] = useState<string>('')
     const [foundUsers,setFoundUsers]=useState<FindByNicknameResponse|null>(null)
+    const controllerRef=useRef<AbortController|null>(null)
 
-    const debouncedFind=debounce(async(nickname:string)=>{
-        const users= await findByNickname(nickname)
-        setFoundUsers(users)
-    },250)
+    const debouncedFind = useMemo(
+        () =>
+            debounce(async (nickname: string) => {
+
+                controllerRef.current?.abort();
+                const controller = new AbortController();
+                controllerRef.current = controller;
+
+                try {
+                    const users = await findByNickname(nickname, controller.signal);
+                    setFoundUsers(users);
+                } catch (e: any) {
+                    console.error(e)
+                }
+            }, 250),
+        []
+    );
     
     useEffect(()=>{
         debouncedFind(searchBarVal)
 
+        return ()=>{
+            controllerRef.current?.abort()
+        }
     },[searchBarVal])
 
     const nav=useNavigate()
