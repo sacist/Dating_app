@@ -36,63 +36,29 @@ export const $nicknameError = createStore<boolean>(false)
 export const $status = createStore<string>("Не задано").on(setStatus, (_, val) => val);
 export const $description = createStore<string>("Не задано").on(setDescription, (_, val) => val);
 
-sample({
-    clock: $profileData,
-    source: $profileData,
-    fn: ($profileData) => $profileData?.nickname || "",
-    target: $nickname
-});
 
-sample({
-    clock: $profileData,
-    source: $profileData,
-    fn: ($profileData) => $profileData?.status || "Не задано",
-    target: $status
-});
-
-sample({
-    clock: $profileData,
-    source: $profileData,
-    fn: ($profileData) => $profileData?.description || "Не задано",
-    target: $description
-});
-
-sample({
-    clock: $profileData,
-    source: $profileData,
-    fn: ($profileData) => {
-        const dob = $profileData?.dob || "";
+$nickname.on($profileData,(_,data)=>data?.nickname||'')
+$status.on($profileData,(_,data)=>data?.status||'Не задано')
+$description.on($profileData,(_,data)=>data?.description||'Не задано')
+$ageDate.on($profileData,(_,data)=>{
+    const dob = data?.dob || "";
         const [day] = dob.split("/");
         return day || "";
-    },
-    target: $ageDate,
-});
-
-sample({
-    clock: $profileData,
-    source: $profileData,
-    fn: ($profileData) => {
-        const dob = $profileData?.dob || "";
+})
+$ageMonth.on($profileData,(_,data)=>{
+    const dob = data?.dob || "";
         const [, month] = dob.split("/");
         return month || "Января";
-    },
-    target: $ageMonth,
-});
-
-sample({
-    clock: $profileData,
-    source: $profileData,
-    fn: ($profileData) => {
-        const dob = $profileData?.dob || "";
+})
+$ageYear.on($profileData,(_,data)=>{
+    const dob = data?.dob || "";
         const [, , year] = dob.split("/");
         return year || "";
-    },
-    target: $ageYear,
-});
+})
+
 
 sample({
     clock: changeProfileDataFx.doneData,
     source: $nickname,
-    fn: (nickname) => nickname,
     target: fetchProfilefx
 });

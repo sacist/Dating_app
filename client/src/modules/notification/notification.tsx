@@ -1,6 +1,6 @@
 import { useUnit } from "effector-react";
 import { $notification,resetNotification,$notificationError } from "../../store/notification";
-import { NotificationWrapper } from "../../UI/notification";
+import { NotificationWrapper } from "../../UI/shared/notification";
 import { MainText } from "../../UI/main-text";
 export const Notification=() => {
     const notification=useUnit($notification)

@@ -18,4 +18,5 @@ export const NotificationWrapper=styled.div<{$display:boolean,$error:boolean}>`
     top: ${({ $display }) => ($display ? "20px" : "-50px")}; 
     opacity: ${({ $display }) => ($display ? "1" : "0")};  
     transition: top 0.5s ease-in-out, opacity 0.4s ease-in-out;
+    z-index: 1000000;
 `

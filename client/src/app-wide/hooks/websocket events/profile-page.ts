@@ -8,7 +8,9 @@ import { useParams } from "react-router-dom"
 export const useProfileSocketEvent=() => {
     const {nickname}=useParams()
     const socket=useUnit($socket)
+    
     useEffect(()=>{
+        console.log(socket);
         if (!nickname||!socket) return
 
         fetchProfilefx(nickname)

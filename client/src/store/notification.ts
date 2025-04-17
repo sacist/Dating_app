@@ -1,6 +1,5 @@
 import { createStore, createEvent, sample, createEffect } from "effector";
 import { changeProfileDataFx } from "./profile-change-data";
-import { errorMessages } from "../app-wide/constants";
 import { AxiosError } from "axios";
 
 let notificationTimeout:number
@@ -13,6 +12,8 @@ const clearNotificationFx = createEffect(() => {
 
 export const setNotification = createEvent<string>();
 export const resetNotification = createEvent();
+export const setNotificationError=createEvent<boolean>()
+
 
 export const $notification = createStore<string>("")
     .on(setNotification, (_, val) => {
@@ -23,32 +24,25 @@ export const $notification = createStore<string>("")
 
 export const $notificationError = createStore<boolean>(false);
 
+
+
+$notification.on(changeProfileDataFx.failData,(_,err)=>{
+    if (err instanceof AxiosError) {
+        if (err.response?.status === 404) return "Ошибка профиля";
+        if (err.response?.status === 409) return "Никнейм занят";
+        if (err.response?.status === 500) return "Ошибка на сервере";
+    }
+    return err.message || "Неизвестная ошибка";
+})
+$notification.on(changeProfileDataFx.doneData,(_,__)=>"Профиль обновлён")
+
 sample({
     clock: changeProfileDataFx.failData,
-    fn: (err) => {
-        if (err instanceof AxiosError) {
-            if (err.response?.status === 404) return "Ошибка профиля";
-            if (err.response?.status === 409) return "Никнейм занят";
-            if (err.response?.status === 500) return "Ошибка на сервере";
-        }
-        return err.message || "Неизвестная ошибка";
-    },
-    target: setNotification,
-});
-
-sample({
-    clock: changeProfileDataFx.doneData,
-    fn: () => "Профиль обновлён",
-    target: setNotification,
-});
-
-sample({
-    clock: setNotification,
-    fn: (val) => errorMessages.includes(val),
+    fn: () => true,
     target: $notificationError,
 });
 
 sample({
-    clock: setNotification,
+    clock: $notification,
     target: clearNotificationFx,
 });

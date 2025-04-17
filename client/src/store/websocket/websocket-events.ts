@@ -8,17 +8,6 @@ export const initSocketFx=createEffect(():Socket=>{
     const socket = io(baseURL, {
         withCredentials: true,
     });
-    if(socket){
-        socket.on('entered-matchmaking',()=>{
-          console.log('Матчмейкинг начался');
-          
-      })
-      socket.on('match-found',(data)=>{
-          console.log('Найден матч');
-          console.log(data);
-          
-      })
-      }
     return socket
 })
 
