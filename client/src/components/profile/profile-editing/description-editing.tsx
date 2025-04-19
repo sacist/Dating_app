@@ -11,7 +11,7 @@ export const DescriptionEditing=() => {
             <MainText $fontweight={600} $fontsize="20px">О себе:</MainText>
             <DescriptionChangeInput onChange={(e:React.ChangeEvent<HTMLTextAreaElement>)=>{
                 setDescription(e.target.value)
-            }} $filled={description.length!=0} maxLength={250} value={description} spellCheck={false}/>
+            }} $filled={description.length!=0} maxLength={2047} value={description} spellCheck={false}/>
         </RestOfContentItem>
     )
 }

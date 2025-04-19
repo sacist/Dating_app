@@ -129,6 +129,19 @@ export const FlexContainer=styled.div`
 `
 export const DescriptionContainer=styled(StatusContainer)`
     max-width: 400px;
+    max-height: 215px;
+    overflow-y: auto;
+    &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    &:hover{
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+  }
 `
 export const DescriptionChangeInput=styled(StatusChangeInput)`
     width:400px;

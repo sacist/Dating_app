@@ -10,7 +10,6 @@ export const useProfileSocketEvent=() => {
     const socket=useUnit($socket)
     
     useEffect(()=>{
-        console.log(socket);
         if (!nickname||!socket) return
 
         fetchProfilefx(nickname)

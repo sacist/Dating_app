@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken')
 require('dotenv').config()
 const cookie = require('cookie')
 const crypto = require('node:crypto')
+const checkTypesError=require('../check-types')
+const checkStringLengthError=require('../check-length')
 
 const JWTREFRESH = process.env.JWT_REFRESH
 const JWTKEY = process.env.JWT_KEY
@@ -11,6 +13,9 @@ const JWTKEY = process.env.JWT_KEY
 class RegistrationController {
     async checkEmail(req, res) {
         const { email } = req.body
+        if(checkTypesError([email],'string')){
+            return res.status(500).json({ error: 'Ошибка на сервере' })
+        }
         let client
         try {
             client = await pool.connect()
@@ -22,7 +27,7 @@ class RegistrationController {
             return res.json({ success: 'Новый пользователь' })
         } catch (e) {
             console.log(e);
-            return res.status(400).json({ error: 'server error' })
+            return res.status(500).json({ error: 'Ошибка на сервере' })
         } finally {
             if (client) {
                 client.release()
@@ -31,6 +36,15 @@ class RegistrationController {
     }
     async registerNewUser(req, res) {
         const { email, name, gender, password, nickname } = req.body
+        const hasError=checkTypesError([email,name,gender,password,nickname],'string')
+            ||checkStringLengthError([password],30)
+            ||checkStringLengthError([email],255)
+            ||checkStringLengthError([name],15)
+            ||checkStringLengthError([nickname],15)
+            ||nickname.length<4
+        if(hasError){
+            return res.status(500).json({ error: 'Ошибка на сервере' })
+        }
         let client
         try {
             client = await pool.connect()

@@ -4,7 +4,7 @@ const cookie = require('cookie')
 const crypto = require('node:crypto')
 const jwt = require('jsonwebtoken')
 require('dotenv').config()
-
+const checkTypesError=require('../check-types')
 
 const JWTREFRESH = process.env.JWT_REFRESH
 const JWTKEY = process.env.JWT_KEY
@@ -12,6 +12,10 @@ const JWTKEY = process.env.JWT_KEY
 class LoginController {
     async Login(req, res) {
         const { loginData, password } = req.body
+        const hasError=checkTypesError([loginData,password],'string')
+        if(hasError){
+            return res.status(500).json({ error: 'Ошибка на сервере' })
+        }
         let client
         try {
             client = await pool.connect()
@@ -60,7 +64,7 @@ class LoginController {
             return res.json({ success: 'Успешный вход' })
         } catch (e) {
             console.log(e);
-            return res.json({ serverError: 'server error' })
+            return res.status(500).json({ error: 'Ошибка на сервере' })
         } finally {
             if (client) {
                 client.release()
@@ -79,7 +83,7 @@ class LoginController {
             return res.json({success:true,link:photoLink,nickname:nickname})
         } catch (e) {
             console.log(e);
-            return res.status(500)
+            return res.status(500).json({ error: 'Ошибка на сервере' })
         }finally {
             if (client) {
                 client.release()

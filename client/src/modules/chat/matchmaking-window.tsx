@@ -1,5 +1,5 @@
-import { MatchmakingStartButton } from "../../UI/chat/matchmaking-start-button"
-import { MatchmakingWindowWrapper } from "../../UI/chat/matchmaking-window"
+import { MatchmakingStartButton } from "../../UI/chat/matchmaking/matchmaking-start-button"
+import { MatchmakingWindowWrapper } from "../../UI/chat/matchmaking/matchmaking-window"
 import { MainText } from "../../UI/main-text"
 import { useUnit } from "effector-react"
 import { $socket } from "../../store/websocket/websocket-events"

@@ -43,7 +43,7 @@ export const RegisterFormStepTwo=() => {
                 $error={false}
                 $filled={name.length>0}
                 $type="text"
-                maxLength={10}
+                maxLength={15}
                 />
             </InputErrorWrapper>
             <NicknameInput>{nicknameError}</NicknameInput>

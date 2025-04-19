@@ -26,7 +26,7 @@ export const $lastProfiles = createStore<string[]>([]).on(
 ).on(setLastProfiles,(_,mutated)=>mutated)
 
 $profileData
-  .on(fetchProfilefx.doneData, (_, val) => val.profile)
+  .on(fetchProfilefx.doneData, (_, val) => val?.profile ?? null)
   .on(updateOnlineStatus, (state, val) => {
     if (state) {
       return {

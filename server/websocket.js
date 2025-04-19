@@ -5,6 +5,7 @@ const sendMessageController=require('./controllers/websocket/send-message')
 const joinChatController=require('./controllers/websocket/join-chat')
 const onlineStatusController=require('./controllers/websocket/profile-online-status')
 const matchmakingController=require('./controllers/websocket/matchmaking')
+const matchSystemController=require('./controllers/websocket/match-system')
 const pool=require('./config/db')
 module.exports=(server,corsOptions)=>{
     const io=new Server(server,{
@@ -18,6 +19,7 @@ module.exports=(server,corsOptions)=>{
         joinChatController(io,socket)
         onlineStatusController(io,socket)
         matchmakingController(io,socket)
+        matchSystemController(io,socket)
         socket.on('disconnect',async()=>{
             io.to(`profile-${socket.nickname}`).emit('profile-host-offline')
             console.log(`Клиент отключился ${socket.id}`);

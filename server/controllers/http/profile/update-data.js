@@ -1,9 +1,18 @@
 const pool=require('../../../config/db')
-
+const checkTypesError = require('../../check-types')
+const checkStringLengthError = require('../../check-length')
 
 const updateData =async (req,res)=>{
     const userId=req.userId
     const {status,description,dob,nickname}=req.body
+    const hasError=checkTypesError([status,description,dob,nickname],'string')
+    ||checkStringLengthError([status,dob],255)
+    ||checkStringLengthError([nickname],15)
+    ||checkStringLengthError([description],2047)
+    
+    if(hasError){
+        return res.status(500).json({error:'Ошибка на сервере'})
+    }
     let client
     try { 
         client=await pool.connect()

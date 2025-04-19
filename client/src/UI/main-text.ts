@@ -10,4 +10,5 @@ export const MainText=styled.span<{$color?:string,$nouserselect?:boolean,$fontsi
     user-select: ${({$nouserselect})=>$nouserselect && 'none'};
     font-size: ${({$fontsize})=>$fontsize};
     font-weight: ${({$fontweight})=>$fontweight};
+    white-space: pre-wrap;
 `

@@ -1,7 +1,7 @@
 import { Input, SearchWrapper,SearchIcon,FoundUsersWrapper,FoundUser } from "../../UI/profile/search-bar";
 import { useState,useEffect,useRef,useMemo } from "react";
 import { findByNickname,FindByNicknameResponse } from "./api/find-by-nickname";
-import debounce from "../../app-wide/debounce-function";
+import debounce from "../../app-wide/functions/debounce-function";
 import { MainText } from "../../UI/main-text";
 import { useNavigate } from "react-router-dom";
 

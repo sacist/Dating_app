@@ -4,25 +4,38 @@ import { AxiosError } from "axios";
 
 let notificationTimeout:number
 
-const clearNotificationFx = createEffect(() => {
-    notificationTimeout = setTimeout(() => {
-        resetNotification();
-    }, 10000);
-});
 
+
+const resetBackgroundFx=createEffect(()=>{
+    setTimeout(()=>{
+        resetBackground()
+    },1000)
+})
+
+const resetBackground=createEvent()
 export const setNotification = createEvent<string>();
 export const resetNotification = createEvent();
 export const setNotificationError=createEvent<boolean>()
+export const setBackground=createEvent<string>()
 
 
+export const $background=createStore<string|null>(null).on(setBackground,(_,val)=>val).reset(resetBackground)
 export const $notification = createStore<string>("")
-    .on(setNotification, (_, val) => {
-        clearTimeout(notificationTimeout);
-        return val;
-    })
-    .reset(resetNotification);
+.on(setNotification, (_, val) => {
+    clearTimeout(notificationTimeout);
+    return val;
+})
+.reset(resetNotification);
 
-export const $notificationError = createStore<boolean>(false);
+
+const clearNotificationFx = createEffect(() => {
+    return new Promise<void>((resolve)=>{
+        notificationTimeout = setTimeout(() => {
+            resetNotification();
+            resolve()
+        }, 10000);
+    })
+});
 
 
 
@@ -38,11 +51,16 @@ $notification.on(changeProfileDataFx.doneData,(_,__)=>"Профиль обнов
 
 sample({
     clock: changeProfileDataFx.failData,
-    fn: () => true,
-    target: $notificationError,
+    fn: () => 'rgba(255, 77, 77, 0.9)',
+    target: $background,
 });
 
 sample({
     clock: $notification,
     target: clearNotificationFx,
 });
+
+sample({
+    clock:clearNotificationFx.done,
+    target:resetBackgroundFx
+})

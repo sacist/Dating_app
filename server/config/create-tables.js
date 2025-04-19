@@ -14,7 +14,7 @@ const createTables = async () => {
         dob VARCHAR(255),
         gender CHAR(1) NOT NULL,
         status VARCHAR(255),
-        description VARCHAR(511),
+        description VARCHAR(2047),
         online BOOLEAN DEFAULT FALSE
         );
 
