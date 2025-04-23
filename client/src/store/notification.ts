@@ -1,6 +1,7 @@
 import { createStore, createEvent, sample, createEffect } from "effector";
 import { changeProfileDataFx } from "./profile-change-data";
 import { AxiosError } from "axios";
+import { fetchChatFx,fetchChatsFx } from "./chat-store";
 
 let notificationTimeout:number
 
@@ -40,13 +41,27 @@ const clearNotificationFx = createEffect(() => {
 
 
 $notification.on(changeProfileDataFx.failData,(_,err)=>{
-    if (err instanceof AxiosError) {
-        if (err.response?.status === 404) return "Ошибка профиля";
-        if (err.response?.status === 409) return "Никнейм занят";
-        if (err.response?.status === 500) return "Ошибка на сервере";
+    const axiosError=err as AxiosError
+        switch (axiosError.response?.status) {
+            case 404:
+                return "Ошибка профиля" 
+            case 409:
+                return "Никнейм занят"
+            case 500:
+                return "Ошибка на сервере"
+            default:
+                return err.message || "Неизвестная ошибка"
     }
-    return err.message || "Неизвестная ошибка";
 })
+$notification.on(fetchChatsFx.failData,(_,err)=>{
+    const axiosError=err as AxiosError
+    if(axiosError.response?.status===500) return 'Ошибка при загрузке чатов'
+})
+$notification.on(fetchChatFx.failData,(_,err)=>{
+    const axiosError=err as AxiosError
+    if(axiosError.response?.status===500) return 'Ошибка при загрузке чата'
+})
+
 $notification.on(changeProfileDataFx.doneData,(_,__)=>"Профиль обновлён")
 
 sample({

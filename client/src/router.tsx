@@ -13,7 +13,7 @@ export const Router=() => {
         <Route path="/register/*" element={<RegisterPage/>}/>
         <Route path="/login" element={<LoginPage/>}/>
         <Route path="/profile/:nickname" element={<ProfilePage/>}/>
-        <Route path="/chat" element={<ChatPage/>}/>
+        <Route path="/chat/*" element={<ChatPage/>}/>
     </Routes>
   )
 }

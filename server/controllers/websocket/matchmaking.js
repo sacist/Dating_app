@@ -1,4 +1,5 @@
 const pool = require('../../config/db');
+const {photoCache}=require('../../caching')
 
 module.exports = (io, socket) => {
     socket.on('join-matchmaking', async () => {
@@ -73,15 +74,34 @@ const matchUsers = async (io, socket, oppositeRoom, client, currentRoom) => {
             socket.join(roomId)
             opponentSocket.join(roomId)
 
-            const [matchProfileResult, matchPhotoResult] = await Promise.all([
-                client.query(`SELECT description,dob,gender,name,nickname,status FROM users WHERE id = $1`, [opponentSocket.userId]),
-                client.query(`SELECT photo_link FROM photos WHERE user_id = $1`, [opponentSocket.userId])
-            ])
+            let matchPhotoResult
+            let myPhotoResult
 
-            const [myProfileResult, myPhotoResult] = await Promise.all([
-                client.query(`SELECT description,dob,gender,name,nickname,status FROM users WHERE id = $1`, [socket.userId]),
-                client.query(`SELECT photo_link FROM photos WHERE user_id = $1`, [socket.userId])
-            ])
+            const matchProfileResult = await client.query(
+                `SELECT description, dob, gender, name, nickname, status FROM users WHERE id = $1`,
+                [opponentSocket.userId])
+
+
+            if(photoCache.has(opponentSocket.userId)){
+                matchPhotoResult=photoCache.get(opponentSocket.userId)
+            }else{
+                matchPhotoResult = await client.query(
+                   `SELECT photo_link FROM photos WHERE user_id = $1`,
+                   [opponentSocket.userId])
+               photoCache.set(opponentSocket.userId,matchPhotoResult)
+            }
+
+            const myProfileResult = await client.query(
+                `SELECT description, dob, gender, name, nickname, status FROM users WHERE id = $1`,
+                [socket.userId])
+
+            if (photoCache.has(socket.userId)) {
+                myPhotoResult=photoCache.get(socket.userId)  
+            }else{
+                myPhotoResult = await client.query(
+                    `SELECT photo_link FROM photos WHERE user_id = $1`,
+                    [socket.userId])
+            }
 
             const matchProfile = matchProfileResult.rows[0]
             const matchPhoto = matchPhotoResult.rows[0].photo_link
@@ -92,13 +112,13 @@ const matchUsers = async (io, socket, oppositeRoom, client, currentRoom) => {
                 roomId,
                 match: matchProfile,
                 photo: matchPhoto
-            });
+            })
 
             opponentSocket.emit('match-found', {
                 roomId,
                 match: myProfile,
                 photo: myPhoto
-            });
+            })
         }
     } catch (e) {
         socket.leave(currentRoom)
@@ -107,4 +127,4 @@ const matchUsers = async (io, socket, oppositeRoom, client, currentRoom) => {
         socket.emit('matching-error')
         console.log(`[matchUsers] Error: ${e.message}`)
     }
-};
+}

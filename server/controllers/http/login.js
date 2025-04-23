@@ -5,6 +5,7 @@ const crypto = require('node:crypto')
 const jwt = require('jsonwebtoken')
 require('dotenv').config()
 const checkTypesError=require('../check-types')
+const {photoCache}=require('../../caching')
 
 const JWTREFRESH = process.env.JWT_REFRESH
 const JWTKEY = process.env.JWT_KEY
@@ -76,9 +77,15 @@ class LoginController {
         let client
         try {
             client=await pool.connect()
-            const photoInfoQuery=await client.query('SELECT * FROM photos WHERE user_id = $1',[userId])
+            let photoInfo
             const userQuery=await client.query('SELECT * FROM users WHERE id=$1',[userId])
-            const photoLink=photoInfoQuery.rows[0].photo_link
+            if(photoCache.has(userId)){
+                photoInfo=photoCache.get(userId)         
+            }else{
+                photoInfo=await client.query('SELECT * FROM photos WHERE user_id = $1',[userId])
+                photoCache.set(userId,photoInfo)
+            }
+            const photoLink=photoInfo.rows[0].photo_link
             const nickname=userQuery.rows[0].nickname
             return res.json({success:true,link:photoLink,nickname:nickname})
         } catch (e) {

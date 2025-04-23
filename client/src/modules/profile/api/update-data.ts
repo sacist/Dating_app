@@ -1,4 +1,4 @@
-import { axiosInstance } from "./fetch-profile";
+import { axiosInstance } from "../../../app-wide/constants";
 
 
 export const updateProfile=async(nickname:string,dob:string|null,status:string|null,description:string|null)=>{

@@ -1,5 +1,5 @@
 import { createStore,createEffect } from "effector";
-import { checkLogin } from "../pages/welcomingPage/api/check-login";
+import { checkLogin } from "../app-wide/api/check-login";
 import  baseURL  from "../app-wide/constants";
 
 export const checkLoginFx=createEffect(async()=>{

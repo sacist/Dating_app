@@ -1,6 +1,7 @@
 const pool=require('../../../config/db')
 const path = require("path");
 const fs = require("fs");
+const {photoCache}=require('../../../caching')
 
 class UploadPhotoController {
     static async uploadPhoto(req, res) {
@@ -10,6 +11,7 @@ class UploadPhotoController {
         const fileUrl = `/photos/${req.file.filename}`;
         let client
         const userId=req.userId
+        photoCache.delete(userId)
         try {
             client=await pool.connect()
 

@@ -12,3 +12,4 @@ export interface ImatchedProfile{
     photo:`/photos/${string}`,
     roomId:string
 }
+export type messageItem=string|false

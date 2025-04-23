@@ -29,6 +29,7 @@ export const SearchBar = () => {
     );
     
     useEffect(()=>{
+        if(!searchBarVal) return
         debouncedFind(searchBarVal)
 
         return ()=>{

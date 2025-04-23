@@ -1,11 +1,5 @@
-import axios from "axios";
 import { AxiosResponse } from 'axios'
-import baseURL from "../../../app-wide/constants";
-
-const axiosInstance=axios.create({
-    baseURL:baseURL,
-    withCredentials:true
-})
+import { axiosInstance } from "../constants";
 
 interface CheckLoginResponse{
     success:boolean
@@ -16,5 +10,4 @@ interface CheckLoginResponse{
 export const checkLogin=async():Promise<AxiosResponse<CheckLoginResponse>>=>{
     const res=await axiosInstance.get('/login/check')
     return res
-    
 }
