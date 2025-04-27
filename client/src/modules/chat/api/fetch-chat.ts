@@ -1,6 +1,6 @@
 import { axiosInstance } from "../../../app-wide/constants";
 
-interface Ichat{
+export interface IMessage{
     id:number
     chat_room_id:number
     user_id:number
@@ -10,10 +10,12 @@ interface Ichat{
 }
 
 export interface IFetchChatResponse{
-    messages:Ichat[]
+    messages:IMessage[]
 }
 
-export const fetchChat=async (nickname:string):Promise<IFetchChatResponse> => {
-    const res=await axiosInstance.get(`/chat/get-chat/${nickname}`)
+export const fetchChat=async (nickname:string,signal?:AbortSignal):Promise<IFetchChatResponse> => {
+    const res=await axiosInstance.get(`/chat/get-chat/${nickname}`,{
+        signal
+    })
     return res.data
 }

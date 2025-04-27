@@ -7,7 +7,7 @@ export const MatchmakingModalWrapper=styled.div`
     height: 100vh;
     background-color: rgba(0, 0, 0, 0.25);
     position: fixed;
-    /* z-index: 1000000; */
+    z-index: 1000000;
     display: flex;
     justify-content: center;
     align-items: center;

@@ -4,3 +4,8 @@ export interface ChangeProfileDataFx{
     status:string,
     description:string
 }
+
+export interface IFetchChatFailData{
+    error:string
+    chatId:number
+}

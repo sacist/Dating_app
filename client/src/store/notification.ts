@@ -16,7 +16,6 @@ const resetBackgroundFx=createEffect(()=>{
 const resetBackground=createEvent()
 export const setNotification = createEvent<string>();
 export const resetNotification = createEvent();
-export const setNotificationError=createEvent<boolean>()
 export const setBackground=createEvent<string>()
 
 

@@ -11,13 +11,18 @@ export const months = [
     "Сентября", "Октября", "Ноября", "Декабря"
 ]
 
-export const errorMessages=[
-    'Никнейм занят','Ошибка на сервере',
-    'Файл не загружен','Пользователь не найден',
-    'Никнейм должен содержать минимум 4 символа'
-]
-
 export const axiosInstance=axios.create({
     baseURL:baseURL,
     withCredentials:true
 })
+
+export const forbiddenKeys = [
+    'Tab', 'Alt', 'Control', 'Shift', 'Meta',
+    'Escape', 'CapsLock', 'ContextMenu',   
+    'F1', 'F2', 'F3', 'F4', 'F5', 'F6',
+    'F7', 'F8', 'F9', 'F10', 'F11', 'F12', 
+    'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+    'PageUp', 'PageDown', 'Home', 'End',
+    'Insert', 'Delete', 'Pause', 'ScrollLock', 
+    'NumLock', 'PrintScreen','Enter'
+  ];

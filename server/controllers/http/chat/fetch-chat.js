@@ -28,7 +28,7 @@ const fetchChat = async (req, res) => {
         }
         const chatId=chatRoomIdQuery.rows[0].chat_room_id
         const chatMessagesQuery = await client.query(`SELECT * FROM chat_room_messages WHERE chat_room_id = $1 ORDER BY timestamp ASC`, [chatId])
-        if (chatMessagesQuery.rows.length === 0) return res.status(404).json({ error: 'Напишите первое сообщение!' })
+        if (chatMessagesQuery.rows.length === 0) return res.status(404).json({ error: 'Напишите первое сообщение!',chatId })
 
         for (const entry of chatMessagesQuery.rows) {
             entry.myMessage = userId === entry.user_id

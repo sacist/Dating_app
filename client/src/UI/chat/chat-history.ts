@@ -22,6 +22,7 @@ export const ChatListWrapper=styled.ul`
     background-color: rgba(0, 0, 0, 0.2);
     border-radius: 4px;
   }
+  flex-shrink: 0;
 `
 
 export const ChatWrapper=styled.li<{$currentchat:boolean}>`
@@ -56,7 +57,7 @@ export const NameTimestampWrapper=styled.div`
     align-items: center;
 `
 export const MessageText=styled(MainText)`
-    white-space: nowrap;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 250px;

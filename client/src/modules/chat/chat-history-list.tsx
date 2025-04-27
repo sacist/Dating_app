@@ -27,6 +27,7 @@ export const ChatHistoryList=() => {
                     const nickname=chats.nicknames[ind]
                     nickname!==currentChat&&nav(`/chat/${nickname}`)}}
                 currentChat={currentChat===chats.nicknames[ind]}
+                nickname={chats.nicknames[ind]}
                 />
             ))}
         </ChatListWrapper>
