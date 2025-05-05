@@ -8,4 +8,7 @@ export interface ChangeProfileDataFx{
 export interface IFetchChatFailData{
     error:string
     chatId:number
+    online:boolean
+    photo:string
+    name:string
 }

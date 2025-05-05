@@ -43,9 +43,11 @@ export const MessageInput=() => {
     },[nickname])
 
     useEffect(()=>{
+        if(chatInputValue===''){
+            nickname&&window.localStorage.removeItem(nickname)
+        }
         if(!nickname||!chatInputValue||!inputDivRef.current)return
         const lines = (chatInputValue.match(/\n/g) || []).length;
-        console.log(inputDivRef.current?.scrollHeight);
         setInputHeight(lines*24+35)
         window.localStorage.setItem(nickname,chatInputValue)
     },[nickname,chatInputValue])

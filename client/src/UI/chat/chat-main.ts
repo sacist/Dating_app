@@ -29,8 +29,15 @@ export const Message=styled.div<{$myMessage:boolean,$firstinseq?:boolean,$lastin
     align-items: center;
     justify-content: center;
     align-self: ${({$myMessage})=>$myMessage?'end':'start'};
-    border-radius: ${({$myMessage})=>$myMessage?'15px 3px 3px 15px':'3px 15px 15px 3px'};
-    border-radius:${({$lastinseq,$firstinseq})=>$firstinseq?'15px 15px 15px 3px':$lastinseq&&'8px 15px 15px 0.5px'};
+    border-radius: ${({ $myMessage, $firstinseq, $lastinseq }) => {
+  if ($firstinseq) {  
+    return $myMessage ? '15px 15px 3px 15px' : '15px 15px 15px 3px';
+  }
+  if ($lastinseq) {
+    return $myMessage ? '15px 8px 0.5px 15px' : '8px 15px 15px 0.5px';
+  }
+  return $myMessage ? '15px 3px 3px 15px' : '3px 15px 15px 3px';
+}};
     word-break: break-word;
   white-space: pre-wrap;
   overflow-wrap: anywhere;

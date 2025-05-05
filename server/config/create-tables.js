@@ -48,6 +48,12 @@ const createTables = async () => {
         message VARCHAR(511),
         timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
+        CREATE TABLE IF NOT EXISTS api_keys (
+        id SERIAL PRIMARY KEY,
+        api_key VARCHAR(255) NOT NULL UNIQUE,
+        error_message_timestamp TIMESTAMP DEFAULT NULL,
+        used_today BOOLEAN DEFAULT FALSE
+        );
     `
     try {
         const client = await pool.connect()

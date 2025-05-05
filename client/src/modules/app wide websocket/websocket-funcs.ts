@@ -2,7 +2,7 @@ import { setMatching, setMatchData, setIsOpenModal } from "../../store/matchmaki
 import { setBackground, setNotification } from "../../store/notification"
 import { ImatchedProfile } from "../../app-wide/types/types"
 import { Socket } from "socket.io-client"
-import { addNewMessage } from "../../store/chat-store"
+import { addNewMessage,updateOnlineStatus } from "../../store/chat-store"
 import { IMessage } from "../chat/api/fetch-chat"
 
 export const onEnteredMatchmaking = () => {
@@ -50,4 +50,12 @@ export const onMatchmakingDismissed = (socket:Socket) => {
 
 export const onGotNewMessage=(message:IMessage)=>{
     addNewMessage(message)
+}
+
+export const onProfileHostOnline=()=>{
+    updateOnlineStatus(true)
+}
+
+export const onProfileHostOffline=()=>{
+    updateOnlineStatus(false)
 }

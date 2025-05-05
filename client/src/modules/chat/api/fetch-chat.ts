@@ -11,6 +11,9 @@ export interface IMessage{
 
 export interface IFetchChatResponse{
     messages:IMessage[]
+    photo:string
+    online:boolean,
+    name:string
 }
 
 export const fetchChat=async (nickname:string,signal?:AbortSignal):Promise<IFetchChatResponse> => {

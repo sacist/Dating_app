@@ -30,7 +30,7 @@ export const fetchChatFx = createEffect(async ({ nickname, signal }: { nickname:
 export const addNewMessage=createEvent<IMessage>()
 export const setInputHeight=createEvent<number>()
 export const setMarginHelper=createEvent<number>()
-
+export const updateOnlineStatus=createEvent<boolean>()
 export const $chats = createStore<IFetchChatsResponse | null>(null).on(fetchChatsFx.doneData, (_, val) => val)
 export const $chat = createStore<IFetchChatResponse | null | IFetchChatFailData>(null)
     .on(fetchChatFx.doneData, (_, val) => val)
@@ -47,6 +47,7 @@ $chat.on(addNewMessage,(prev,newMessage)=>{
     if(!prev)return prev
     if(!('messages' in prev)){
         return {
+            ...prev,
             messages:[newMessage]
         }
     }
@@ -55,6 +56,16 @@ $chat.on(addNewMessage,(prev,newMessage)=>{
     messages: [...prev.messages, newMessage],
   }
 })
+
+$chat.on(updateOnlineStatus, (state, val) => {
+    if (state) {
+      return {
+        ...state,
+        online: val,
+      };
+    }
+  });
+
 sample({
     clock:fetchChatFx.done,
     fn:({params})=>params.nickname,

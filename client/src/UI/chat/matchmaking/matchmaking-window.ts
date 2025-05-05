@@ -8,4 +8,5 @@ export const MatchmakingWindowWrapper=styled.div`
     perspective: 400px;
     align-items: center;
     background-color: white;
+    flex-shrink: 0;
 `

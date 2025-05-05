@@ -2,7 +2,8 @@ import { useEffect } from "react"
 import { $socket } from "../../store/websocket/websocket-events"
 import { useUnit } from "effector-react"
 import { onEnteredMatchmaking,onGotDislike,onGotLike,onMatchFound,
-    onMatchSuccess,onMatchingError,onMatchmakingDismissed,onGotNewMessage } from "./websocket-funcs"
+    onMatchSuccess,onMatchingError,onMatchmakingDismissed,onGotNewMessage,
+onProfileHostOffline,onProfileHostOnline } from "./websocket-funcs"
 import { $matchData } from "../../store/matchmaking"
 import { useNavigate } from "react-router-dom"
 import { fetchChatsFx } from "../../store/chat-store"
@@ -28,7 +29,8 @@ export const useWebsocketListeners=() => {
         socket.on('got-dislike', onGotDislike)
         socket.on('matchmaking-dismissed', handleMatcmakingDismissed)
         socket.on('got-new-message',onGotNewMessage)
-        
+        socket.on('profile-host-online',onProfileHostOnline)
+        socket.on('profile-host-offline',onProfileHostOffline)
         return () => {
             socket.off('entered-matchmaking', onEnteredMatchmaking)
             socket.off('match-found', onMatchFound)
@@ -38,6 +40,8 @@ export const useWebsocketListeners=() => {
             socket.off('got-dislike', onGotDislike)
             socket.off('matchmaking-dismissed', handleMatcmakingDismissed)
             socket.off('got-new-message',onGotNewMessage)
+            socket.off('profile-host-online',onProfileHostOnline)
+            socket.off('profile-host-offline',onProfileHostOffline)
         }
     }, [socket, matchData, navigate])
 };
