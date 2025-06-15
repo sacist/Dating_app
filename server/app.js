@@ -16,7 +16,8 @@ const port = 3000
 let corsOptions = {
     origin: [
         'http://localhost:5173',
-        'http://192.168.0.104:5173'
+        'http://192.168.0.104:5173',
+        'http://192.168.0.100:5173'
     ],
     credentials:true
 }

@@ -1,94 +1,138 @@
-const cleanMessage = (msg) => {
-    return msg
-        .replace(/\n+/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim()
-};
-const pool = require('../../config/db')
-const { subscriptionCache, genderCache } = require('../../caching')
+const cleanMessage = (msg) => msg.replace(/\n+/g, ' ').replace(/\s+/g, ' ').trim();
+
+const pool = require('../../config/db');
+const { subscriptionCache, genderCache } = require('../../caching');
+const { getAssistentAnalysys } = require('../../ai/assistent-ai');
+
+const lastCompatUpdateCache = new Map();
+
+const createJSONs = (messages, genders, msgScores) => 
+    messages.map((msg, i) => ({
+        message: cleanMessage(msg),
+        gender: genders[i],
+        message_score: msgScores[i]
+    }));
+
+async function updateScores(client, chatId, compatScore, messageId, messageScore) {
+    const now = Date.now();
+    const lastUpdate = lastCompatUpdateCache.get(chatId) || 0;
+    
+    try {
+        await client.query('BEGIN');
+        
+        // Обновляем только если прошло 5+ секунд
+        if (now - lastUpdate >= 5000) {
+            await client.query(
+                `UPDATE chat_room SET compatibility_score = $1 WHERE id = $2`,
+                [compatScore, chatId]
+            );
+            lastCompatUpdateCache.set(chatId, now);
+        }
+        
+        await client.query(
+            `UPDATE chat_room_messages SET message_score = $1 WHERE id = $2`,
+            [messageScore, messageId]
+        );
+        
+        await client.query('COMMIT');
+    } catch (e) {
+        await client.query('ROLLBACK');
+        console.error('Ошибка при обновлении оценок:', e);
+    }
+}
 
 module.exports = (io, socket) => {
     socket.on('send-message', async (data) => {
-        let client
-        let hasSubscription
-        const userId = socket.userId
-        let compatScore
-        let messageScore
-        let gender
-        try {
-            if (!data.message || data.message.length > 10000) {
-                socket.emit('message-is-too-long')
-                return
-            }
-            client = await pool.connect()
-            if (subscriptionCache.has(userId)) {
-                hasSubscription = subscriptionCache.get(userId)
-            } else {
-                const subscriptionQuery = await client.query(`SELECT has_subscription FROM users WHERE id =$1`, [userId])
-                hasSubscription = subscriptionQuery.rows[0].has_subscription
-                subscriptionCache.set(userId, hasSubscription)
-            }
-            if (hasSubscription) {
-                const scoresQuery=await client.query(`SELECT compatibility,last_message_score FROM chat_room WHERE id=$1`,[data.chat_id])
-                compatScore=scoresQuery.rows[0].compatibility
-                messageScore=scoresQuery.rows[0].last_message_score
+        if (!data.message || data.message.length > 10000) {
+            return socket.emit('message-is-too-long');
+        }
 
-                const messagesQuery = await client.query(`SELECT message,user_id FROM chat_room_messages WHERE chat_room_id =$1`, [data.chat_id])
-                const messages = []
-                const genders = []
-                for (const { message, user_id } of messagesQuery.rows.slice(-100)) {
-                    if (genderCache.has(user_id)) {
-                        genders.push(genderCache.get(user_id))
-                    } else {
-                        const genderQuery = await client.query(`SELECT gender FROM users WHERE id=$1`, [user_id])
-                        const gender = genderQuery.rows[0].gender
-                        genderCache.set(user_id, gender)
-                        genders.push(gender)
-                    }
-                    messages.push(message)
+        const userId = socket.userId;
+        const client = await pool.connect();
+        
+        try {
+            // 1. Отправляем сообщение
+            const { rows: [message] } = await client.query(
+                `INSERT INTO chat_room_messages (chat_room_id, user_id, message) 
+                 VALUES ($1, $2, $3) RETURNING id, message, user_id, timestamp`,
+                [data.chat_id, userId, data.message]
+            );
+
+            // Рассылаем сообщение
+            const roomSockets = await io.in(`chat-${data.chat_id}`).fetchSockets();
+            roomSockets.forEach(s => s.emit('got-new-message', { 
+                ...message, 
+                myMessage: s.userId === userId 
+            }));
+
+            // 2. AI анализ для подписчиков
+            const { rows: [{ has_subscription, gender: userGender }] } = await client.query(
+                `SELECT u.has_subscription, u.gender 
+                 FROM users u WHERE u.id = $1`,
+                [userId]
+            );
+
+            if (!has_subscription) return;
+
+            // Получаем данные для анализа
+            const { rows: messages } = await client.query(
+                `SELECT crm.id, crm.message, crm.user_id, crm.message_score, u.gender
+                 FROM chat_room_messages crm
+                 JOIN users u ON crm.user_id = u.id
+                 WHERE crm.chat_room_id = $1
+                 ORDER BY crm.timestamp DESC LIMIT 100`,
+                [data.chat_id]
+            );
+
+            const compatScore = (await client.query(
+                `SELECT compatibility_score FROM chat_room WHERE id = $1`,
+                [data.chat_id]
+            )).rows[0].compatibility_score;
+
+            // Формируем промпт
+            const prompt = {
+                compatibilityScore: compatScore,
+                previous_messages: messages.map(m => ({
+                    message: cleanMessage(m.message),
+                    gender: m.gender,
+                    message_score: m.id === message.id ? 0 : m.message_score
+                })).reverse(),
+                newMessage: {
+                    newMessage: data.message,
+                    gender: userGender
                 }
-                
-                if (genderCache.has(userId)) {
-                    gender=genderCache.get(userId)
-                } else {
-                    const genderQuery = await client.query(`SELECT gender FROM users WHERE id=$1`, [userId])
-                    gender = genderQuery.rows[0].gender
-                    genderCache.set(userId, gender)
-                }
-                const jsons = messages.map((msg, ind) => {
-                    return {
-                        message: cleanMessage(msg),
-                        gender: genders[ind]
+            };
+
+            // Анализ в фоне
+            getAssistentAnalysys(client, JSON.stringify(prompt))
+                .then(res => {
+                    try {
+                        const analysis = JSON.parse(res);
+                        
+                        // Отправляем только автору сообщения
+                        socket.emit('ai-reasoning', {
+                            messageId: message.id,
+                            analysis: analysis.analysis,
+                            compatibilityScore: analysis.compatibilityScore,
+                            newMessageScore: analysis.newMessageScore
+                        });
+
+                        updateScores(
+                            client,
+                            data.chat_id,
+                            analysis.compatibilityScore,
+                            message.id,
+                            analysis.newMessageScore
+                        );
+                    } catch (e) {
+                        console.error('Ошибка обработки AI ответа:', e);
                     }
                 })
-                const newMessage=data.message
-                const prompt={
-                    compatibilityScore:compatScore,
-                    lastMessageScore:messageScore,
-                    jsons,
-                    newMessage:{
-                        newMessage,
-                        gender
-                    }
-                }
-
-                console.log(prompt);
-                
-            }
-            const newMessage = await client.query(`INSERT INTO chat_room_messages
-                 (chat_room_id,user_id,message) VALUES ($1,$2,$3) RETURNING *`, [data.chat_id, userId, data.message])
-            const message = newMessage.rows[0]
-            const roomSockets = await io.in(`chat-${data.chat_id}`).fetchSockets();
-            for (const roomSocket of roomSockets) {
-                const userId = roomSocket.userId
-                roomSocket.emit('got-new-message', { ...message, myMessage: userId === message.user_id })
-            }
+                .catch(console.error);
         } catch (e) {
-            console.log(e);
+            console.error('Ошибка в send-message:', e);
         } finally {
-            if (client) {
-                client.release()
-            }
+            client.release();
         }
-    })
-}
+    });
+};

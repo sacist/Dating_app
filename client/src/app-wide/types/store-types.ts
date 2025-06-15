@@ -10,5 +10,5 @@ export interface IFetchChatFailData{
     chatId:number
     online:boolean
     photo:string
-    name:string
+    name:string,
 }

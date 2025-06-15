@@ -15,7 +15,7 @@ export interface IFetchChatResponse{
     online:boolean,
     name:string
     compatibilityScore:number
-    lastMessageScore:number
+    lastMessageScore:number,
 }
 
 export const fetchChat=async (nickname:string,signal?:AbortSignal):Promise<IFetchChatResponse> => {

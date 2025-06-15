@@ -6,5 +6,5 @@ module.exports = {
     photoCache,
     nicknameIdCache,
     subscriptionCache,
-    genderCache
+    genderCache,
   }
